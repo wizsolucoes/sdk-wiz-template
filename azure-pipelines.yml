@@ -33,18 +33,6 @@ stages:
   jobs:
     - job:
       steps:
-      - task: SonarCloudPrepare@1
-        inputs:
-          SonarCloud: 'sonarcloudwiz'
-          organization: 'wizdevops'
-          scannerMode: 'MSBuild'
-          projectKey: '$(projectKey)'
-          projectName: '$(projectKey)'
-          extraProperties: |
-            sonar.exclusions=**/obj/**,**/*.dll
-            sonar.cs.opencover.reportsPaths=**/coverage.*.xml
-            sonar.coverage.exclusions=**Tests*.cs
-            sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
 
       - task: DotNetCoreCLI@2
         displayName: Restore
@@ -66,12 +54,6 @@ stages:
           command: test
           arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude=[xunit*]*'
           projects: '$(RestoreBuildProjectsTest)'
-
-      - task: SonarCloudAnalyze@1
-
-      - task: SonarCloudPublish@1
-        inputs:
-          pollingTimeoutSec: '300'
 
       - script: |
           dotnet tool install dotnet-reportgenerator-globaltool --tool-path .
