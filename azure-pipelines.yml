@@ -55,17 +55,17 @@ stages:
           arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude=[xunit*]*'
           projects: '$(RestoreBuildProjectsTest)'
 
-      - script: |
-          dotnet tool install dotnet-reportgenerator-globaltool --tool-path .
-          ./reportgenerator -reports:$(Build.SourcesDirectory)/**/coverage.*.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage "-reporttypes:HtmlInline_AzurePipelines;HtmlInline_AzurePipelines_Dark;Cobertura"
-        displayName: Create Code coverage report
+#      - script: |
+#          dotnet tool install dotnet-reportgenerator-globaltool --tool-path .
+#          ./reportgenerator -reports:$(Build.SourcesDirectory)/**/coverage.*.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage "-reporttypes:HtmlInline_AzurePipelines;HtmlInline_AzurePipelines_Dark;Cobertura"
+#        displayName: Create Code coverage report
 
-      - task: PublishCodeCoverageResults@1
-        displayName: 'Publish code coverage'
-        inputs:
-          codeCoverageTool: Cobertura
-          summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/*.xml'
-          reportDirectory: '$(Build.SourcesDirectory)/CodeCoverage'
+#      - task: PublishCodeCoverageResults@1
+#        displayName: 'Publish code coverage'
+#        inputs:
+#          codeCoverageTool: Cobertura
+#          summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/*.xml'
+#          reportDirectory: '$(Build.SourcesDirectory)/CodeCoverage'
 
       - task: DotNetCoreCLI@2
         displayName: Publish
