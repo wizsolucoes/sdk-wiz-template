@@ -22,8 +22,11 @@ variables:
   RestoreBuildProjects: '**/*.csproj'
   RestoreBuildProjectsTest: '**/*[Tt]ests/*.csproj'
   projectKey: '$(Build.Repository.Name)'
+  MajorVesion: '1'
+  MinorVerion: '0'
   # Necessário caso há Wiz.Common (Nuget)
   #wizCrossFeed: '09b2821a-2950-4eff-a722-dbc8adf4da55'
+
 
 resources:
 - repo: self
