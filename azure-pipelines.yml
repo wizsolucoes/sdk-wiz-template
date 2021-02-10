@@ -19,7 +19,7 @@ pool:
 
 variables:
   MajorVesion: '1'
-  MinorVerion: '0'
+  MinorVerion: '1'
 
 resources:
 - repo: self
