@@ -52,7 +52,7 @@ stages:
       - task: NuGetCommand@2
         displayName: 'NuGet pack'
         inputs:
-          command: push
-          nuGetFeedType: external
-          publishFeedCredentials: nuget
-          versioningScheme: byPrereleaseNumber
+          command: 'push'
+          packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+          nuGetFeedType: 'external'
+          publishFeedCredentials: 'nuget.org'
