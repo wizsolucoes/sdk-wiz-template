@@ -2,6 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Wiz Soluções e Corretagem de Seguros S.A.</Authors>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <Description>SDK para consumir a API Template.</Description>
+    <Version>1.0.0</Version>
+
   </PropertyGroup>
 
   <ItemGroup> 
