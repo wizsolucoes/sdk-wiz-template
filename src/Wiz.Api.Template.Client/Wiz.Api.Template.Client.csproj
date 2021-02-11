@@ -6,8 +6,6 @@
     <Authors>Wiz Soluções e Corretagem de Seguros S.A.</Authors>
     <PackageReleaseNotes></PackageReleaseNotes>
     <Description>SDK para consumir a API Template.</Description>
-    <Version>1.0.0</Version>
-    <VersionPrefix>1.0.0</VersionPrefix>
   </PropertyGroup>
 
   <ItemGroup> 
