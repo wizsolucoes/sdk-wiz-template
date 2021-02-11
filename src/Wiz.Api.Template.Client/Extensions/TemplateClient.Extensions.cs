@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using IdentityModel.Client;
+using System.Threading.Tasks;
 using Wiz.Api.Template.Client.Config;
 
 namespace Wiz.Api.Template.Client
@@ -42,12 +43,12 @@ namespace Wiz.Api.Template.Client
 
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, string url)
         {
-            AuthWithClientCredentials(client, this.Config).GetAwaiter();
+            AuthWithClientCredentials(client, this.Config).Wait();
         }
 
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, System.Text.StringBuilder urlBuilder)
         {
-            AuthWithClientCredentials(client, this.Config).GetAwaiter();
+            AuthWithClientCredentials(client, this.Config).Wait();
         }
     }
 }
