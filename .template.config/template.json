@@ -63,6 +63,7 @@
           "**/*.user",
           "**/*.lock.json",
           "README.md",
+          "**/TemplateClient.cs",
           "LICENSE",
           ".git/**/*",
           ".github/**/*"
