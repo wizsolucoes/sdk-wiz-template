@@ -1,7 +1,6 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using IdentityModel.Client;
-using System.Threading.Tasks;
 using Wiz.Api.Template.Client.Config;
 
 namespace Wiz.Api.Template.Client
@@ -20,7 +19,7 @@ namespace Wiz.Api.Template.Client
 
         public ClientCredentials Config { get; }
 
-        public async Task AuthWithClientCredentials(HttpClient httpClient, ClientCredentials config)
+        public async System.Threading.Tasks.Task AuthWithClientCredentials(HttpClient httpClient, ClientCredentials config)
         {
             DiscoveryDocumentResponse disco = await httpClient.GetDiscoveryDocumentAsync(config.BaseAuthUrl);
 
