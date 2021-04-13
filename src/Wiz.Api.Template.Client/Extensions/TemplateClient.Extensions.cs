@@ -2,12 +2,15 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using IdentityModel.Client;
 using Wiz.Api.Template.Client.Config;
+using System;
 
 namespace Wiz.Api.Template.Client
 {
     public partial class TemplateClient
     {
         private TokenResponse _token;
+        private DateTime TokenExpiration;
+        public ICredentials Config { get; }
 
         public TemplateClient(
             string baseServiceUrl,
@@ -24,9 +27,6 @@ namespace Wiz.Api.Template.Client
         {
             Config = config;
         }
-
-        public ICredentials Config { get; }
-
         public async System.Threading.Tasks.Task AuthWithClientCredentials(HttpClient httpClient, ICredentials config)
         {
             switch (config)
@@ -44,15 +44,22 @@ namespace Wiz.Api.Template.Client
 
         private async Task ConfigRequestClientCredentials(HttpClient httpClient, ClientCredentials client)
         {
-            DiscoveryDocumentResponse disco = await httpClient.GetDiscoveryDocumentAsync(client.BaseAuthUrl);
+            // Less than zero t1 is earlier than t2.
+            Boolean isTokenExpired = DateTime.Compare(this.TokenExpiration, DateTime.Now) < 0;
 
-            this._token = await httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            if (this._token == null || isTokenExpired)
             {
-                ClientId = client.ClientId,
-                ClientSecret = client.ClientSecret,
-                Address = disco.TokenEndpoint,
-                Scope = client.Scope
-            });
+                DiscoveryDocumentResponse disco = await httpClient.GetDiscoveryDocumentAsync(client.BaseAuthUrl);
+
+                this._token = await httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+                {
+                    ClientId = client.ClientId,
+                    ClientSecret = client.ClientSecret,
+                    Address = disco.TokenEndpoint,
+                    Scope = client.Scope
+                });
+                this.TokenExpiration = DateTime.Now.AddSeconds((this._token.ExpiresIn - 60));
+            }
 
             string authorizationHeader = "Authorization";
             if (httpClient.DefaultRequestHeaders.Contains(authorizationHeader))
