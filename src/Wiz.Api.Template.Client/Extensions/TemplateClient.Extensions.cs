@@ -17,18 +17,41 @@ namespace Wiz.Api.Template.Client
             Config = config;
         }
 
-        public ClientCredentials Config { get; }
-
-        public async System.Threading.Tasks.Task AuthWithClientCredentials(HttpClient httpClient, ClientCredentials config)
+        public TemplateClient(
+            string baseServiceUrl,
+            System.Net.Http.HttpClient httpClient,
+            ApimCredentials config) : this(baseServiceUrl, httpClient)
         {
-            DiscoveryDocumentResponse disco = await httpClient.GetDiscoveryDocumentAsync(config.BaseAuthUrl);
+            Config = config;
+        }
+
+        public ICredentials Config { get; }
+
+        public async System.Threading.Tasks.Task AuthWithClientCredentials(HttpClient httpClient, ICredentials config)
+        {
+            switch (config)
+            {
+                case ClientCredentials client:
+                    await ConfigRequestClientCredentials(httpClient, client);
+                    break;
+                case ApimCredentials apim:
+                    ConfigRequestApim(httpClient, apim);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private async Task ConfigRequestClientCredentials(HttpClient httpClient, ClientCredentials client)
+        {
+            DiscoveryDocumentResponse disco = await httpClient.GetDiscoveryDocumentAsync(client.BaseAuthUrl);
 
             this._token = await httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
-                ClientId = config.ClientId,
-                ClientSecret = config.ClientSecret,
+                ClientId = client.ClientId,
+                ClientSecret = client.ClientSecret,
                 Address = disco.TokenEndpoint,
-                Scope = config.Scope
+                Scope = client.Scope
             });
 
             string authorizationHeader = "Authorization";
@@ -38,6 +61,25 @@ namespace Wiz.Api.Template.Client
             }
 
             httpClient.DefaultRequestHeaders.TryAddWithoutValidation(authorizationHeader, $"Bearer {this._token.AccessToken}");
+        }
+
+        private void ConfigRequestApim(HttpClient httpClient, ApimCredentials apim)
+        {
+            string apiKey = "x-api-key";
+            if (httpClient.DefaultRequestHeaders.Contains(apiKey))
+            {
+                httpClient.DefaultRequestHeaders.Remove(apiKey);
+            }
+
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation(apiKey, $"{apim.ApiKey}");
+
+            string apiSubscription = "x-api-subscription";
+            if (httpClient.DefaultRequestHeaders.Contains(apiSubscription))
+            {
+                httpClient.DefaultRequestHeaders.Remove(apiSubscription);
+            }
+
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation(apiSubscription, $"{apim.SubscriptionKey}");
         }
 
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, string url)

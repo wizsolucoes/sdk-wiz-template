@@ -1,6 +1,6 @@
 namespace Wiz.Api.Template.Client.Config
 {
-    public class ClientCredentials
+    public class ClientCredentials: ICredentials
     {
         public ClientCredentials(string baseAuthUrl, string clientId, string clientSecret, string scope)
         {
