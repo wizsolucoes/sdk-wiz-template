@@ -18,82 +18,22 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 variables:
-  BuildConfiguration: 'Release'
-  RestoreBuildProjects: '**/*.csproj'
-  RestoreBuildProjectsTest: '**/*[Tt]ests/*.csproj'
-  projectKey: '$(Build.Repository.Name)'
   MajorVesion: '1'
-  MinorVerion: '0'
-  # Necessário caso há Wiz.Common (Nuget)
-  #wizCrossFeed: '09b2821a-2950-4eff-a722-dbc8adf4da55'
-
+  MinorVerion: '1'
 
 resources:
 - repo: self
 
 stages:
-- stage: build
-  jobs:
-    - job:
-      steps:
-
-      - task: DotNetCoreCLI@2
-        displayName: Restore
-        inputs:
-          command: restore
-          projects: '$(RestoreBuildProjects)'
-          # Necessário caso há Wiz.Common (Nuget)
-          #feedRestore: '$(wizCrossFeed)'
-
-      - task: DotNetCoreCLI@2
-        displayName: Build
-        inputs:
-          projects: '$(RestoreBuildProjects)'
-          arguments: '--configuration $(BuildConfiguration)'
-
-      - task: DotNetCoreCLI@2
-        displayName: Test
-        inputs:
-          command: test
-          arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude=[xunit*]*'
-          projects: '$(RestoreBuildProjectsTest)'
-
-#      - script: |
-#          dotnet tool install dotnet-reportgenerator-globaltool --tool-path .
-#          ./reportgenerator -reports:$(Build.SourcesDirectory)/**/coverage.*.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage "-reporttypes:HtmlInline_AzurePipelines;HtmlInline_AzurePipelines_Dark;Cobertura"
-#        displayName: Create Code coverage report
-
-#      - task: PublishCodeCoverageResults@1
-#        displayName: 'Publish code coverage'
-#        inputs:
-#          codeCoverageTool: Cobertura
-#          summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/*.xml'
-#          reportDirectory: '$(Build.SourcesDirectory)/CodeCoverage'
-
-      - task: DotNetCoreCLI@2
-        displayName: Publish
-        inputs:
-          command: publish
-          arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-          projects: '$(RestoreBuildProjects)'
-          publishWebProjects: false
-          modifyOutputPath: true
-          zipAfterPublish: true
-
-      - task: PublishBuildArtifacts@1
-        displayName: 'Publish Artifact'
-        inputs:
-          pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-          
+         
 - stage: Nuget
   condition: and(succeeded(), not(eq(variables['Build.Reason'], 'Schedule')), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-  dependsOn: [build]
   jobs:
     - job:
       steps:
       - powershell: |
           [xml] $xdoc = Get-Content "Wiz.Api.Template.Client.nuspec"
-          $xdoc.package.metadata.version = "$(MajorVesion).$(MinorVerion).$(Build.BuildNumber)"
+          $xdoc.package.metadata.version = "$(MajorVesion).$(MinorVerion).$(Build.BuildId)"
           $xdoc.Save("Wiz.Api.Template.Client.nuspec") 
         displayName: 'PowerShell Script'
 
@@ -112,7 +52,7 @@ stages:
       - task: NuGetCommand@2
         displayName: 'NuGet pack'
         inputs:
-          command: push
-          nuGetFeedType: external
-          publishFeedCredentials: nuget
-          versioningScheme: byPrereleaseNumber
+          command: 'push'
+          packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+          nuGetFeedType: 'external'
+          publishFeedCredentials: 'nuget.org'
