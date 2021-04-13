@@ -23,7 +23,9 @@ namespace Wiz.Api.Template.Client
         public async System.Threading.Tasks.Task AuthWithClientCredentials(HttpClient httpClient, ClientCredentials config)
         {
             // Less than zero t1 is earlier than t2.
-            if (this._token == null || DateTime.Compare(this.TokenExpiration, DateTime.Now) < 0)
+            Boolean isTokenExpired = DateTime.Compare(this.TokenExpiration, DateTime.Now) < 0;
+
+            if (this._token == null || isTokenExpired)
             {
                 DiscoveryDocumentResponse disco = await httpClient.GetDiscoveryDocumentAsync(config.BaseAuthUrl);
 
